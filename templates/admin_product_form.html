@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ 'ترمیم' if product else 'نئی پروڈکٹ' }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">{{ 'ترمیم' if product else 'نئی پروڈکٹ' }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">نام *</label>
+                            <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">کیٹیگری</label>
+                            <input type="text" name="category" class="form-control" value="{{ product.category if product else '' }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">تفصیل</label>
+                        <textarea name="description" class="form-control" rows="3">{{ product.description if product else '' }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">خریداری قیمت</label>
+                            <input type="number" name="purchase_price" class="form-control" step="0.01" value="{{ product.purchase_price if product else 0 }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">فروخت قیمت *</label>
+                            <input type="number" name="selling_price" class="form-control" step="0.01" value="{{ product.selling_price if product else '' }}" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">اسٹاک</label>
+                            <input type="number" name="stock_quantity" class="form-control" value="{{ product.stock_quantity if product else 0 }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">تصویر</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                            {% if product and product.image_url %}
+                            <img src="{{ product.image_url }}" style="max-width: 100px; border-radius: 8px;" class="mt-2">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> محفوظ کریں</button>
+                    <a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary">منسوخ</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

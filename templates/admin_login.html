@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}ایڈمن لاگ ان{% endblock %}
+{% block navbar %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-5 col-lg-4">
+        <div class="card p-4">
+            <div class="text-center mb-4">
+                <i class="fas fa-user-shield" style="font-size: 3rem; color: var(--primary-color);"></i>
+                <h3 class="mt-3">ایڈمن پینل</h3>
+            </div>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">ایڈمن فون نمبر</label>
+                    <input type="tel" name="phone" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">ایڈمن پاس ورڈ</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3">ایڈمن لاگ ان</button>
+                <div class="text-center">
+                    <a href="{{ url_for('customer_login') }}" class="text-muted small">صارف لاگ ان</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

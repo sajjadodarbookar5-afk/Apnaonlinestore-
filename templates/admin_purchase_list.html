@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}خریداری فہرست{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-clipboard-list text-primary"></i> خریداری فہرست</h2>
+    <div class="btn-group">
+        <a href="{{ url_for('admin_purchase_export') }}" class="btn btn-success"><i class="fas fa-file-excel"></i> ایکسپورٹ</a>
+        <form method="POST" action="{{ url_for('admin_purchase_clear') }}" class="d-inline" onsubmit="return confirm('صاف کریں؟')">
+            <button type="submit" class="btn btn-outline-secondary"><i class="fas fa-broom"></i> صاف</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">زیر التواء خریداری ({{ items|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if items %}
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead><tr><th>ٹک</th><th>پروڈکٹ</th><th>مقدار</th><th>خرید قیمت</th><th>کل</th><th>عمل</th></tr></thead>
+                <tbody>
+                    {% set total_value = [0] %}
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin_purchase_toggle', item_id=item.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-success"><i class="fas fa-check-circle"></i></button>
+                            </form>
+                        </td>
+                        <td><strong>{{ item.product.name }}</strong></td>
+                        <td><span class="badge bg-primary">{{ item.quantity_needed }}</span></td>
+                        <td>Rs.{{ item.product.purchase_price|round }}</td>
+                        <td>
+                            <strong>Rs.{{ (item.quantity_needed * item.product.purchase_price)|round }}</strong>
+                            {% set _ = total_value.append(total_value.pop() + item.quantity_needed * item.product.purchase_price) %}
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin_purchase_delete', item_id=item.id) }}" class="d-inline" onsubmit="return confirmDelete()">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-warning">
+                        <td colspan="4" class="text-end"><strong>کل:</strong></td>
+                        <td colspan="2"><strong class="fs-5">Rs.{{ total_value[0]|round }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5"><p class="text-muted">سب خرید لیا گیا!</p></div>
+        {% endif %}
+    </div>
+</div>
+
+{% if purchased %}
+<div class="card">
+    <div class="card-header bg-white"><h5 class="mb-0">حالیہ خریداریاں</h5></div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>پروڈکٹ</th><th>مقدار</th><th>تاریخ</th></tr></thead>
+            <tbody>
+                {% for item in purchased %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity_needed }}</td>
+                    <td>{{ item.purchase_date.strftime('%d-%m-%Y') if item.purchase_date else '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

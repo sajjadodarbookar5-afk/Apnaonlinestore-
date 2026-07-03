@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}پروڈکٹس مینجمنٹ{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-box text-primary"></i> پروڈکٹس</h2>
+    <a href="{{ url_for('admin_product_add') }}" class="btn btn-primary"><i class="fas fa-plus"></i> نئی پروڈکٹ</a>
+</div>
+
+<form method="GET" class="row g-2 mb-4">
+    <div class="col-md-10">
+        <input type="text" name="search" class="form-control" placeholder="تلاش..." value="{{ search }}">
+    </div>
+    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">تلاش</button></div>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>تصویر</th><th>نام</th><th>کیٹیگری</th><th>خرید</th><th>فروخت</th><th>اسٹاک</th><th>اسٹیٹس</th><th>عمل</th></tr></thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                        {% else %}
+                        <div style="width: 50px; height: 50px; background: var(--primary-light); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-box text-muted"></i>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ product.name }}</strong></td>
+                    <td>{{ product.category or '-' }}</td>
+                    <td>Rs.{{ product.purchase_price|round }}</td>
+                    <td><strong class="text-primary">Rs.{{ product.selling_price|round }}</strong></td>
+                    <td><span class="badge {{ 'bg-success' if product.stock_quantity > 10 else 'bg-warning' if product.stock_quantity > 0 else 'bg-danger' }}">{{ product.stock_quantity }}</span></td>
+                    <td>{% if product.is_active %}<span class="badge bg-success">فعال</span>{% else %}<span class="badge bg-secondary">غیر فعال</span>{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('admin_product_edit', product_id=product.id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                        <form method="POST" action="{{ url_for('admin_product_toggle', product_id=product.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-{{ 'warning' if product.is_active else 'success' }}"><i class="fas fa-{{ 'pause' if product.is_active else 'play' }}"></i></button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin_product_delete', product_id=product.id) }}" class="d-inline" onsubmit="return confirmDelete()">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

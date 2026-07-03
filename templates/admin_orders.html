@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}آرڈرز{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-shopping-cart text-primary"></i> آرڈرز</h2>
+
+<form method="GET" class="row g-2 mb-4">
+    <div class="col-md-5">
+        <input type="text" name="search" class="form-control" placeholder="صارف تلاش..." value="{{ search }}">
+    </div>
+    <div class="col-md-4">
+        <select name="status" class="form-select">
+            <option value="all" {{ 'selected' if status_filter == 'all' }}>تمام</option>
+            <option value="pending" {{ 'selected' if status_filter == 'pending' }}>زیر التواء</option>
+            <option value="confirmed" {{ 'selected' if status_filter == 'confirmed' }}>تصدیق شدہ</option>
+            <option value="delivered" {{ 'selected' if status_filter == 'delivered' }}>ترسیل شدہ</option>
+            <option value="cancelled" {{ 'selected' if status_filter == 'cancelled' }}>منسوخ</option>
+        </select>
+    </div>
+    <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">فلٹر</button></div>
+</form>
+
+{% if orders %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>#</th><th>صارف</th><th>فون</th><th>رقم</th><th>تاریخ</th><th>اسٹیٹس</th><th>عمل</th></tr></thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td><strong>{{ order.customer.name }}</strong><br><small>{{ order.customer.shop_name }}</small></td>
+                    <td>{{ order.customer.phone }}</td>
+                    <td><strong class="text-primary">Rs.{{ order.total_amount|round }}</strong></td>
+                    <td>{{ order.created_at.strftime('%d-%m-%Y') }}</td>
+                    <td><span class="badge badge-{{ order.status }}">{{ order.status_display }}</span></td>
+                    <td>
+                        <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                        <a href="{{ url_for('admin_order_whatsapp', order_id=order.id) }}" class="btn btn-sm btn-whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body text-center py-5"><p class="text-muted">کوئی آرڈر نہیں</p></div></div>
+{% endif %}
+{% endblock %}

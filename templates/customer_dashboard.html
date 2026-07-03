@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}ڈیش بورڈ{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>السلام علیکم، {{ current_user.name }}!</h2>
+        <p class="text-muted">{{ current_user.shop_name }}</p>
+    </div>
+</div>
+
+{% if cart_items %}
+<div class="card mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-shopping-cart text-primary"></i> میرا کارٹ ({{ cart_items|length }})</h5>
+        <form method="POST" action="{{ url_for('clear_cart') }}" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('کارٹ خالی کریں؟')">
+                <i class="fas fa-trash"></i> خالی کریں
+            </button>
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr><th>پروڈکٹ</th><th>قیمت</th><th>مقدار</th><th>کل</th><th>عمل</th></tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td><strong>{{ item.product.name }}</strong></td>
+                        <td>Rs.{{ item.product.selling_price|round }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('update_cart', product_id=item.product.id) }}" class="d-inline">
+                                <div class="qty-selector">
+                                    <button type="submit" name="quantity" value="{{ item.quantity - 1 }}">-</button>
+                                    <input type="text" value="{{ item.quantity }}" readonly>
+                                    <button type="submit" name="quantity" value="{{ item.quantity + 1 }}">+</button>
+                                </div>
+                            </form>
+                        </td>
+                        <td><strong>Rs.{{ item.total|round }}</strong></td>
+                        <td>
+                            <form method="POST" action="{{ url_for('remove_from_cart', product_id=item.product.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-times"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-primary">
+                        <td colspan="3" class="text-end"><strong>کل رقم:</strong></td>
+                        <td colspan="2"><strong class="text-primary fs-5">Rs.{{ cart_total|round }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="text-center mt-3">
+            <form method="POST" action="{{ url_for('place_order') }}">
+                <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-check-circle"></i> آرڈر بھیجیں</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="fas fa-box text-primary"></i> پروڈکٹس</h4>
+    <a href="{{ url_for('products_list') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-search"></i> تلاش</a>
+</div>
+
+<div class="row">
+    {% for product in products[:8] %}
+    <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card product-card h-100">
+            {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+            <div style="height: 200px; background: var(--primary-light); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-box-open" style="font-size: 3rem; color: var(--primary-color); opacity: 0.5;"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h6 class="product-name">{{ product.name }}</h6>
+                {% if product.category %}<small class="text-muted">{{ product.category }}</small>{% endif %}
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="product-price">Rs.{{ product.selling_price|round }}</span>
+                    <span class="badge {{ 'bg-success' if product.stock_quantity > 10 else 'bg-warning' if product.stock_quantity > 0 else 'bg-danger' }}">
+                        {{ product.stock_quantity }} عدد
+                    </span>
+                </div>
+                {% if product.stock_quantity > 0 %}
+                <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="mt-3">
+                    <div class="input-group">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" class="form-control form-control-sm">
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-cart-plus"></i> کارٹ</button>
+                    </div>
+                </form>
+                {% else %}
+                <button class="btn btn-secondary btn-sm w-100 mt-3" disabled>سٹاک ختم</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if orders %}
+<div class="mt-5">
+    <h4><i class="fas fa-history text-primary"></i> حالیہ آرڈرز</h4>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead><tr><th>آرڈر #</th><th>تاریخ</th><th>رقم</th><th>اسٹیٹس</th><th>عمل</th></tr></thead>
+                <tbody>
+                    {% for order in orders[:5] %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.created_at.strftime('%d-%m-%Y') }}</td>
+                        <td>Rs.{{ order.total_amount|round }}</td>
+                        <td><span class="badge badge-{{ order.status }}">{{ order.status_display }}</span></td>
+                        <td>
+                            <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                            <a href="{{ url_for('order_whatsapp', order_id=order.id) }}" class="btn btn-sm btn-whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

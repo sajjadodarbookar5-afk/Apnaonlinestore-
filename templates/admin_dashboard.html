@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}ایڈمن ڈیش بورڈ{% endblock %}
+{% block content %}
+<h2 class="mb-4">ایڈمن ڈیش بورڈ</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #E6FFFA; color: #38A169;"><i class="fas fa-rupee-sign"></i></div>
+            <div class="stat-value">Rs.{{ stats.today_sales|round }}</div>
+            <div class="text-muted">آج کی فروخت</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #EBF8FF; color: #3182CE;"><i class="fas fa-calendar-week"></i></div>
+            <div class="stat-value">Rs.{{ stats.week_sales|round }}</div>
+            <div class="text-muted">ہفتہ وار</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #FAF5FF; color: #805AD5;"><i class="fas fa-calendar-alt"></i></div>
+            <div class="stat-value">Rs.{{ stats.month_sales|round }}</div>
+            <div class="text-muted">ماہانہ</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #FFF5F5; color: #E53E3E;"><i class="fas fa-users"></i></div>
+            <div class="stat-value">{{ stats.total_customers }}</div>
+            <div class="text-muted">کل صارفین</div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card"><div class="card-body text-center">
+            <h3 class="text-warning mb-0">{{ stats.pending_orders }}</h3>
+            <small class="text-muted">زیر التواء</small>
+        </div></div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card"><div class="card-body text-center">
+            <h3 class="text-info mb-0">{{ stats.confirmed_orders }}</h3>
+            <small class="text-muted">تصدیق شدہ</small>
+        </div></div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card"><div class="card-body text-center">
+            <h3 class="text-success mb-0">{{ stats.delivered_orders }}</h3>
+            <small class="text-muted">ترسیل شدہ</small>
+        </div></div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card"><div class="card-body text-center">
+            <h3 class="text-primary mb-0">{{ stats.total_orders }}</h3>
+            <small class="text-muted">کل آرڈرز</small>
+        </div></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-white"><h5 class="mb-0">گزشتہ 7 دن کی فروخت</h5></div>
+            <div class="card-body"><canvas id="salesChart" height="100"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white"><h5 class="mb-0"><i class="fas fa-exclamation-triangle text-warning"></i> کم اسٹاک</h5></div>
+            <div class="card-body">
+                {% if stats.low_stock %}
+                <div class="list-group list-group-flush">
+                    {% for product in stats.low_stock[:10] %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div><strong>{{ product.name }}</strong></div>
+                        <span class="badge {{ 'bg-warning' if product.stock_quantity > 0 else 'bg-danger' }}">{{ product.stock_quantity }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-muted">سب ٹھیک ہے</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white"><h5 class="mb-0">فوری اقدامات</h5></div>
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-3 col-6"><a href="{{ url_for('admin_product_add') }}" class="btn btn-outline-primary w-100"><i class="fas fa-plus"></i><br>نئی پروڈکٹ</a></div>
+            <div class="col-md-3 col-6"><a href="{{ url_for('admin_orders', status='pending') }}" class="btn btn-outline-warning w-100"><i class="fas fa-clock"></i><br>زیر التواء</a></div>
+            <div class="col-md-3 col-6"><a href="{{ url_for('admin_purchase_list') }}" class="btn btn-outline-success w-100"><i class="fas fa-clipboard-list"></i><br>خریداری</a></div>
+            <div class="col-md-3 col-6"><a href="{{ url_for('admin_customers') }}" class="btn btn-outline-info w-100"><i class="fas fa-users"></i><br>صارفین</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesData = {{ stats.daily_sales|tojson }};
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: salesData.map(d => d.date),
+            datasets: [{
+                label: 'فروخت',
+                data: salesData.map(d => d.sales),
+                backgroundColor: 'rgba(255, 107, 53, 0.7)',
+                borderColor: 'rgba(255, 107, 53, 1)',
+                borderWidth: 2, borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

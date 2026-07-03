@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}رجسٹریشن{% endblock %}
+{% block navbar %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center" style="min-height: 80vh;">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+            <div class="text-center mb-4">
+                <h3>نیا اکاؤنٹ بنائیں</h3>
+                <p class="text-muted">اپنی دکان رجسٹر کریں</p>
+            </div>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">نام *</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">فون نمبر *</label>
+                    <input type="tel" name="phone" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">دکان کا نام</label>
+                    <input type="text" name="shop_name" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">پتہ</label>
+                    <textarea name="address" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">پاس ورڈ *</label>
+                    <input type="password" name="password" class="form-control" required minlength="6">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">پاس ورڈ دوبارہ *</label>
+                    <input type="password" name="confirm_password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3">رجسٹر کریں</button>
+                <div class="text-center">
+                    <p>پہلے سے اکاؤنٹ؟ <a href="{{ url_for('customer_login') }}">لاگ ان</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

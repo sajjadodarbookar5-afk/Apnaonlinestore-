@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}صارفین{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-users text-primary"></i> صارفین</h2>
+
+<form method="GET" class="row g-2 mb-4">
+    <div class="col-md-10">
+        <input type="text" name="search" class="form-control" placeholder="تلاش..." value="{{ search }}">
+    </div>
+    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">تلاش</button></div>
+</form>
+
+{% if customers %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>نام</th><th>دکان</th><th>فون</th><th>آرڈرز</th><th>کل خریداری</th><th>عمل</th></tr></thead>
+            <tbody>
+                {% for data in customers %}
+                {% set customer = data.customer %}
+                <tr>
+                    <td><strong>{{ customer.name }}</strong></td>
+                    <td>{{ customer.shop_name or '-' }}</td>
+                    <td>{{ customer.phone }}</td>
+                    <td><span class="badge bg-info">{{ data.total_orders }}</span></td>
+                    <td><strong>Rs.{{ data.total_spent|round }}</strong></td>
+                    <td>
+                        <a href="https://wa.me/92{{ customer.phone[1:] }}" class="btn btn-sm btn-whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                        <form method="POST" action="{{ url_for('admin_customer_delete', customer_id=customer.id) }}" class="d-inline" onsubmit="return confirmDelete()">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body text-center py-5"><p class="text-muted">کوئی صارف نہیں</p></div></div>
+{% endif %}
+{% endblock %}

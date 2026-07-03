@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}میرے آرڈرز{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-history text-primary"></i> میرے آرڈرز</h2>
+{% if orders %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>آرڈر #</th><th>تاریخ</th><th>رقم</th><th>اسٹیٹس</th><th>عمل</th></tr></thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.created_at.strftime('%d-%m-%Y') }}</td>
+                    <td>Rs.{{ order.total_amount|round }}</td>
+                    <td><span class="badge badge-{{ order.status }}">{{ order.status_display }}</span></td>
+                    <td>
+                        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                        <a href="{{ url_for('order_whatsapp', order_id=order.id) }}" class="btn btn-sm btn-whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body text-center py-5">
+    <p class="text-muted">ابھی تک کوئی آرڈر نہیں</p>
+    <a href="{{ url_for('products_list') }}" class="btn btn-primary">خریداری شروع کریں</a>
+</div></div>
+{% endif %}
+{% endblock %}
